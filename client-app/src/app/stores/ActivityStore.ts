@@ -1,5 +1,5 @@
 import { makeAutoObservable, runInAction } from "mobx";
-import { Activity } from "../models/activities";
+import { Activity } from "../models/activity";
 import agent from "../api/agent";
 
 export default class ActivityStore {
@@ -18,6 +18,19 @@ export default class ActivityStore {
       (a, b) => Date.parse(a.date) - Date.parse(b.date)
     );
   }
+
+  get groupedActivities() {
+    return Object.entries(
+      this.activitiesByDate.reduce((activities, activity) => {
+        const date = activity.date;
+        activities[date] = activities[date]
+          ? [...activities[date], activity]
+          : [activity];
+        return activities;
+      }, {} as { [key: string]: Activity[] })
+    );
+  }
+
   loadActivities = async () => {
     this.loadingInitial = true;
     try {
